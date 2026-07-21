@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileText,
   LayoutDashboard,
+  LineChart,
   Package,
   ReceiptText,
 } from "lucide-react";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/analytics", label: "Analytics", icon: LineChart },
   { href: "/admin/billing", label: "Billing", icon: CreditCard },
   { href: "/admin/invoices", label: "Invoices", icon: FileText },
   { href: "/admin/transactions", label: "Transactions", icon: ReceiptText },

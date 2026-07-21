@@ -48,5 +48,6 @@ next-env.d.ts
 /.next-stale*/
 /test-results/
 /playwright-report/
+/data/
 
 .vercel
