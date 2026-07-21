@@ -61,7 +61,7 @@ export default async function TransactionDetailPage({
             </div>
             <p className="mt-2 truncate text-xs text-slate-500">{transaction.id}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-flow-col">
             {transaction.receiptUrl ? (
               <Button asChild>
                 <Link href={transaction.receiptUrl} target="_blank" rel="noreferrer">
@@ -86,7 +86,31 @@ export default async function TransactionDetailPage({
             <CardTitle>Order Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="overflow-x-auto rounded-lg border">
+            <div className="grid gap-3 md:hidden">
+              {transaction.items.map((item, index) => (
+                <article key={item.id} className="rounded-lg border border-slate-200 bg-white p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Item {index + 1}
+                      </p>
+                      <h3 className="mt-1 font-semibold">{item.name}</h3>
+                    </div>
+                    <p className="shrink-0 font-semibold">{item.total}</p>
+                  </div>
+                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <TransactionMeta label="Quantity" value={String(item.quantity)} />
+                    <TransactionMeta label="Unit cost" value={item.unitAmount} />
+                  </dl>
+                </article>
+              ))}
+              {transaction.items.length === 0 && (
+                <div className="rounded-lg border border-dashed border-slate-200 py-10 text-center text-sm text-slate-500">
+                  Stripe did not return line items for this session.
+                </div>
+              )}
+            </div>
+            <div className="hidden overflow-x-auto rounded-lg border md:block">
               <table className="w-full min-w-[760px] text-sm">
                 <thead>
                   <tr className="border-b bg-slate-50 text-left text-slate-500">
@@ -177,9 +201,18 @@ function StatusBadge({ status }: { status: AdminTransactionStatus }) {
   return <span className={`rounded-full px-3 py-1 text-sm font-medium ${color}`}>{status}</span>;
 }
 
+function TransactionMeta({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</dt>
+      <dd className="mt-1 truncate font-medium text-slate-800">{value}</dd>
+    </div>
+  );
+}
+
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[90px_1fr] border-b pb-3 last:border-0">
+    <div className="grid gap-1 border-b pb-3 last:border-0 min-[420px]:grid-cols-[90px_1fr]">
       <span className="text-slate-500">{label}</span>
       <span className="font-medium">{value}</span>
     </div>

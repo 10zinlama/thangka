@@ -211,8 +211,8 @@ export function AdminProductsTable({ products }: { products: StoreProduct[] }) {
                 <StorefrontBadge product={product} />
               </RowMeta>
 
-              <div className="flex items-center gap-1.5 lg:justify-end">
-                <Button asChild variant="outline" size="sm" className="h-8 gap-1 px-2 has-[>svg]:px-2">
+              <div className="grid grid-cols-2 gap-2 min-[460px]:flex min-[460px]:items-center lg:justify-end">
+                <Button asChild variant="outline" size="sm" className="h-8 w-full gap-1 px-2 has-[>svg]:px-2 min-[460px]:w-auto">
                   <Link href={`/admin/products/${product.id}/edit`}>
                     <Pencil className="h-4 w-4" />
                     Edit
@@ -291,7 +291,7 @@ function SummaryStat({ label, value }: { label: string; value: string }) {
 
 function RowMeta({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[88px_1fr] items-center gap-3 lg:block">
+    <div className="grid grid-cols-[82px_1fr] items-center gap-3 lg:block">
       <span className="text-xs font-medium uppercase tracking-wide text-slate-400 lg:hidden">
         {label}
       </span>
@@ -365,6 +365,7 @@ function DeleteProductButton({ id, name }: { id: string; name: string }) {
   return (
     <form
       action={deleteProductAction}
+      className="min-w-0"
       onSubmit={(event) => {
         if (lockedRef.current) {
           event.preventDefault();
@@ -395,7 +396,7 @@ function DeleteSubmitButton({ locked }: { locked: boolean }) {
       type="submit"
       variant="outline"
       size="sm"
-      className="h-8 gap-1 border-red-200 px-2 text-red-700 hover:bg-red-50 hover:text-red-800 has-[>svg]:px-2"
+      className="h-8 w-full gap-1 border-red-200 px-2 text-red-700 hover:bg-red-50 hover:text-red-800 has-[>svg]:px-2 min-[460px]:w-auto"
       disabled={disabled}
     >
       <Trash2 className="h-4 w-4" />

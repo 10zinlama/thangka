@@ -140,7 +140,7 @@ function MetricCard({
           {icon}
         </div>
         <p className="text-sm font-medium text-slate-500">{title}</p>
-        <p className="mt-2 text-4xl font-bold">{value}</p>
+        <p className="mt-2 break-words text-3xl font-bold sm:text-4xl">{value}</p>
         <p className="mt-2 text-xs text-slate-500">{detail}</p>
       </CardContent>
     </Card>

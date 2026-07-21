@@ -14,12 +14,12 @@ const invoices = [
 export default function InvoicesPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
           <p className="text-sm text-slate-500">View and create customer invoices.</p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/admin/invoices/create">
             <Plus className="h-4 w-4" />
             Create Invoice
@@ -45,7 +45,7 @@ export default function InvoicesPage() {
             <CardTitle>Invoices</CardTitle>
             <p className="text-sm text-slate-500">Your most recent invoices list</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 min-[520px]:flex min-[520px]:flex-wrap">
             <Button variant="outline" size="sm">
               All Invoices
             </Button>

@@ -24,7 +24,7 @@ export default async function InvoiceDetailPage({
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Invoice</CardTitle>
           <p className="font-semibold">ID: #{id}</p>
         </CardHeader>
@@ -83,9 +83,9 @@ export default async function InvoiceDetailPage({
             <TotalLine label="Total" value="$3,410" strong />
           </div>
 
-          <div className="flex justify-end gap-3 border-t pt-6">
-            <Button variant="outline">Proceed to payment</Button>
-            <Button>
+          <div className="grid gap-3 border-t pt-6 sm:flex sm:justify-end">
+            <Button variant="outline" className="w-full sm:w-auto">Proceed to payment</Button>
+            <Button className="w-full sm:w-auto">
               <Printer className="h-4 w-4" />
               Print
             </Button>

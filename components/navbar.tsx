@@ -37,7 +37,7 @@ export const Navbar = () => {
   if (pathname.startsWith("/admin")) return null;
 
   return <>
-    <div className="bg-[#1d2a24] px-4 py-2 text-center text-[10px] font-semibold uppercase tracking-[.16em] text-white sm:text-xs">Curated Himalayan art <span className="mx-2 text-[#dca65a]">*</span> Insured worldwide delivery</div>
+    <div className="bg-[#1d2a24] px-4 py-2 text-center text-[10px] font-semibold uppercase leading-5 tracking-[.12em] text-white sm:text-xs sm:tracking-[.16em]">Curated Himalayan art <span className="mx-2 text-[#dca65a]">*</span> Insured worldwide delivery</div>
     <header className="sticky top-0 z-50 border-b border-black/10 bg-[#fbfaf7]/95 backdrop-blur-xl">
       <div className="section-shell grid h-[76px] grid-cols-[1fr_auto] items-center lg:grid-cols-[1fr_auto_1fr]">
         <Link href="/" className="w-fit leading-none" aria-label="ST Thangka home"><span className="block font-serif text-xl font-bold tracking-[.08em]">ST THANGKA</span><span className="mt-1 block text-[8px] font-bold uppercase tracking-[.42em] text-[#a7442d]">Sacred Art</span></Link>
@@ -49,7 +49,7 @@ export const Navbar = () => {
           <button onClick={() => setOpen(!open)} className="nav-icon lg:hidden" aria-label="Toggle menu" aria-expanded={open}>{open ? <X /> : <Menu />}</button>
         </div>
       </div>
-      <div className={cn("grid overflow-hidden bg-[#fbfaf7] transition-[grid-template-rows] duration-300 lg:hidden", open ? "grid-rows-[1fr] border-t border-black/10" : "grid-rows-[0fr]")}><div className="min-h-0"><nav className="section-shell grid py-5" aria-label="Mobile navigation">{links.map((link) => <NavLink key={link.href} {...link} active={link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)} mobile />)}{isAdmin && <NavLink href="/admin" label="Dashboard" active mobile />}{!isSignedIn && <SignInButton mode="modal"><button className="mt-3 h-12 border border-black/15 text-sm font-semibold">Sign in</button></SignInButton>}</nav></div></div>
+      <div className={cn("grid overflow-hidden bg-[#fbfaf7] transition-[grid-template-rows] duration-300 lg:hidden", open ? "grid-rows-[1fr] border-t border-black/10" : "grid-rows-[0fr]")}><div className="min-h-0"><nav className="section-shell grid py-5" aria-label="Mobile navigation">{links.map((link) => <NavLink key={link.href} {...link} active={link.href === "/" ? pathname === "/" : pathname.startsWith(link.href)} mobile />)}{isAdmin && <NavLink href="/admin" label="Dashboard" active mobile />}{isSignedIn ? <div className="border-b border-black/10 py-4 sm:hidden"><UserButton /></div> : <SignInButton mode="modal"><button className="mt-3 h-12 border border-black/15 text-sm font-semibold">Sign in</button></SignInButton>}</nav></div></div>
     </header>
   </>;
 };

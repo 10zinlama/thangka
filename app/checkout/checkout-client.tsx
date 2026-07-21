@@ -46,18 +46,18 @@ export function CheckoutClient() {
 
   return (
     <div className="bg-stone-50">
-      <section className="border-b border-stone-200 bg-white py-12">
+      <section className="border-b border-stone-200 bg-white py-10 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">
             Secure Checkout
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
             Review Your Order
           </h1>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_380px] lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[1fr_380px] lg:px-8">
         <Card>
           <CardHeader>
             <CardTitle>Cart Items</CardTitle>
@@ -65,8 +65,8 @@ export function CheckoutClient() {
           <CardContent>
             <ul className="divide-y divide-stone-200">
               {items.map((item) => (
-                <li key={item.id} className="flex gap-4 py-5 first:pt-0 last:pb-0">
-                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md bg-stone-100">
+                <li key={item.id} className="flex flex-col gap-4 py-5 first:pt-0 last:pb-0 min-[420px]:flex-row">
+                  <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-md bg-stone-100 min-[420px]:h-24 min-[420px]:w-24">
                     {item.imageUrl ? (
                       <Image
                         src={item.imageUrl}
@@ -78,7 +78,7 @@ export function CheckoutClient() {
                     ) : null}
                   </div>
                   <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="font-semibold text-slate-950">{item.name}</h2>
                       <p className="mt-1 text-sm text-slate-500">
                         {formatMoney(item.price, item.currency)} each
@@ -105,7 +105,7 @@ export function CheckoutClient() {
                         </Button>
                       </div>
                     </div>
-                    <p className="text-lg font-bold text-slate-950">
+                    <p className="text-lg font-bold text-slate-950 sm:text-right">
                       {formatMoney(item.price * item.quantity, item.currency)}
                     </p>
                   </div>

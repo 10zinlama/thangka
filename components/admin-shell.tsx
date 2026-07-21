@@ -35,16 +35,16 @@ export function AdminShell({ children }: AdminShellProps) {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 text-slate-950 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 px-3 py-4 text-slate-950 sm:px-6 sm:py-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
-        <aside className="rounded-lg border bg-white p-4 shadow-sm lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
-          <div className="mb-6">
+        <aside className="rounded-lg border bg-white p-3 shadow-sm sm:p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
+          <div className="mb-4 lg:mb-6">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
               Admin
             </p>
             <h2 className="text-xl font-bold">ST Thangka Store</h2>
           </div>
-          <nav className="space-y-1">
+          <nav className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:block lg:space-y-1">
             {adminNav.map((item) => {
               const Icon = item.icon;
               const active =
@@ -58,7 +58,7 @@ export function AdminShell({ children }: AdminShellProps) {
                   href={item.href}
                   prefetch
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition",
+                    "flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition sm:gap-3",
                     active
                       ? "bg-slate-950 text-white shadow-sm"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"

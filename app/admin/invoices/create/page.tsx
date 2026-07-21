@@ -81,12 +81,12 @@ export default function CreateInvoicePage() {
             <TotalLine label="Total" value="$4235.00" strong />
           </div>
         </CardContent>
-        <div className="flex justify-end gap-3 border-t p-6">
-          <Button variant="outline">
+        <div className="grid gap-3 border-t p-6 sm:flex sm:justify-end">
+          <Button variant="outline" className="w-full sm:w-auto">
             <Eye className="h-4 w-4" />
             Preview Invoice
           </Button>
-          <Button>
+          <Button className="w-full sm:w-auto">
             <Save className="h-4 w-4" />
             Save Invoice
           </Button>

@@ -94,9 +94,9 @@ export default function BillingPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Payment Methods</CardTitle>
-          <Button variant="outline">
+          <Button variant="outline" className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Add New Card
           </Button>
@@ -118,7 +118,7 @@ export default function BillingPage() {
                   </span>
                 ) : null}
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2 min-[440px]:flex">
                 {!method.default ? (
                   <Button variant="outline" size="sm">
                     Make Default
@@ -150,7 +150,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[130px_1fr] border-b pb-3 last:border-0">
+    <div className="grid gap-1 border-b pb-3 last:border-0 min-[420px]:grid-cols-[130px_1fr]">
       <span className="text-slate-500">{label}</span>
       <span className="font-medium">{value}</span>
     </div>

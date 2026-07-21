@@ -38,9 +38,9 @@ const methods = [
 export default function ContactPage() {
   return (
     <div className="bg-[#fbfaf7]">
-      <section className="section-shell pb-12 pt-16 sm:pt-24">
+      <section className="section-shell pb-10 pt-12 sm:pb-12 sm:pt-24">
         <p className="eyebrow">Contact</p>
-        <h1 className="max-w-4xl font-serif text-5xl leading-[1.02] sm:text-7xl">
+        <h1 className="max-w-4xl text-balance font-serif text-4xl leading-[1.04] min-[380px]:text-5xl sm:text-7xl">
           Let&apos;s find the right work,{" "}
           <em className="text-[#a7442d]">together.</em>
         </h1>
@@ -74,7 +74,7 @@ export default function ContactPage() {
           ))}
         </aside>
 
-        <div className="border border-black/12 bg-white p-6 sm:p-10 lg:p-12">
+        <div className="border border-black/12 bg-white p-5 min-[380px]:p-6 sm:p-10 lg:p-12">
           <h2 className="mb-8 font-serif text-3xl">Send an enquiry</h2>
           <ContactForm />
         </div>

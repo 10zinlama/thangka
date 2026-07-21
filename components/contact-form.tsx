@@ -74,7 +74,7 @@ export function ContactForm() {
 
   if (status === "sent") {
     return (
-      <div className="flex min-h-[480px] flex-col items-center justify-center text-center">
+      <div className="flex min-h-[320px] flex-col items-center justify-center text-center sm:min-h-[480px]">
         <CheckCircle2 className="h-12 w-12 text-[#a7442d]" />
         <h2 className="mt-5 font-serif text-4xl">Message received.</h2>
         <p className="mt-3 max-w-sm text-sm leading-6 text-black/55">

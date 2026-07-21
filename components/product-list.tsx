@@ -47,7 +47,7 @@ export const ProductList = ({ products }: { products: StoreProduct[]; compact?: 
 
   return (
     <div>
-      <div className="sticky top-[70px] z-30 mb-10 rounded-2xl border border-black/10 bg-[#f7f5f0]/90 p-3 shadow-sm backdrop-blur-xl">
+      <div className="z-30 mb-8 rounded-2xl border border-black/10 bg-[#f7f5f0]/90 p-3 shadow-sm backdrop-blur-xl sm:sticky sm:top-[86px] sm:mb-10">
         <div className="flex flex-col gap-3 lg:flex-row">
           <label className="relative flex-1">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
@@ -67,7 +67,7 @@ export const ProductList = ({ products }: { products: StoreProduct[]; compact?: 
               </button>
             ) : null}
           </label>
-          <div className="flex gap-2 overflow-x-auto">
+          <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
             {categories.map((item) => (
               <button
                 key={item}
@@ -97,14 +97,14 @@ export const ProductList = ({ products }: { products: StoreProduct[]; compact?: 
           </div>
         </div>
       </div>
-      <div className="mb-6 flex justify-between text-sm text-black/50">
+      <div className="mb-6 flex flex-col gap-1 text-sm text-black/50 min-[420px]:flex-row min-[420px]:justify-between">
         <span>
           {filtered.length} work{filtered.length === 1 ? "" : "s"}
         </span>
         <span>Curated collection</span>
       </div>
       {filtered.length ? (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-8 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {paginatedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

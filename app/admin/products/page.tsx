@@ -29,7 +29,7 @@ export default async function AdminProductsPage() {
         <CardHeader>
           <CardTitle>Products List</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <AdminProductsTable products={products} />
         </CardContent>
       </Card>

@@ -37,8 +37,8 @@ export const ProductDetail = ({ product }: Props) => {
 
   return (
     <div className="bg-stone-50">
-      <section className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-center lg:px-8 lg:py-14">
-        <div className="relative aspect-square w-full max-w-[520px] overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+      <section className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-center lg:px-8 lg:py-14">
+        <div className="relative mx-auto aspect-square w-full max-w-[520px] overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm lg:mx-0">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
@@ -55,7 +55,7 @@ export const ProductDetail = ({ product }: Props) => {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">
             {product.category || "Artwork"}
           </p>
-          <h1 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
+          <h1 className="mt-3 text-balance text-3xl font-bold text-slate-950 sm:text-4xl">
             {product.name}
           </h1>
           {product.description ? (
@@ -65,12 +65,12 @@ export const ProductDetail = ({ product }: Props) => {
           ) : null}
 
           <div className="mt-8 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-slate-500">Price</p>
-                <p className="text-3xl font-bold text-slate-950">{amount}</p>
+                <p className="break-words text-3xl font-bold text-slate-950">{amount}</p>
               </div>
-              <div className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+              <div className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
                 {product.availability}
               </div>
             </div>

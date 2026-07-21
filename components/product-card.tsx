@@ -24,7 +24,7 @@ export const ProductCard = ({ product }: { product: StoreProduct }) => {
             src={product.imageUrl}
             alt={product.name}
             fill
-            sizes="(min-width:1280px) 20vw, (min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw"
+            sizes="(min-width:1280px) 20vw, (min-width:1024px) 25vw, (min-width:640px) 33vw, (min-width:480px) 50vw, 100vw"
             className="object-cover transition duration-700 group-hover:scale-[1.04]"
           />
         ) : null}
@@ -43,7 +43,7 @@ export const ProductCard = ({ product }: { product: StoreProduct }) => {
           <div className="min-w-0">
             <p className="mb-1 flex items-center gap-1 text-[11px] text-black/45">
               <Star className="h-3 w-3 shrink-0 fill-[#b7502b] text-[#b7502b]" /> 4.9{" "}
-              <span>- Collector favorite</span>
+              <span className="truncate">- Collector favorite</span>
             </p>
             <Link href={`/products/${product.id}`}>
               <h3 className="line-clamp-2 text-sm font-semibold leading-5 transition group-hover:text-[#b7502b]">
@@ -51,7 +51,7 @@ export const ProductCard = ({ product }: { product: StoreProduct }) => {
               </h3>
             </Link>
           </div>
-          <p className="shrink-0 text-sm font-semibold">{amount}</p>
+          <p className="shrink-0 text-right text-sm font-semibold">{amount}</p>
         </div>
       </div>
     </article>
