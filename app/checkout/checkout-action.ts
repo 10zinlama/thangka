@@ -2,8 +2,10 @@
 
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
+import { currentUser } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getProduct } from "@/lib/products";
 
 type CheckoutItem = { id: string; quantity: number };
 
@@ -11,6 +13,14 @@ export const checkoutAction = async (formData: FormData): Promise<void> => {
   let checkoutUrl: string;
 
   try {
+    const user = await currentUser();
+    if (!user) {
+      redirect("/sign-in");
+    }
+
+    const requestHeaders = await headers();
+    assertSameOrigin(requestHeaders);
+
     const rawItems = formData.get("items");
     if (typeof rawItems !== "string") throw new CheckoutProblem("Your cart could not be read.");
 
@@ -30,11 +40,24 @@ export const checkoutAction = async (formData: FormData): Promise<void> => {
 
     for (const item of items) {
       const quantity = Math.max(1, Math.min(10, Math.floor(Number(item.quantity))));
-      if (!item.id?.startsWith("prod_") || !Number.isFinite(quantity)) {
+      if (typeof item.id !== "string" || !Number.isFinite(quantity)) {
         throw new CheckoutProblem("One of the cart items is invalid.");
       }
 
-      const product = await stripe.products.retrieve(item.id, { expand: ["default_price"] });
+      const catalogProduct = await getProduct(item.id);
+      if (
+        !catalogProduct ||
+        !catalogProduct.active ||
+        catalogProduct.unitAmount === null ||
+        catalogProduct.availability === "out_of_stock" ||
+        !catalogProduct.stripeProductId.startsWith("prod_")
+      ) {
+        throw new CheckoutProblem("One of the cart items is no longer available.");
+      }
+
+      const product = await stripe.products.retrieve(catalogProduct.stripeProductId, {
+        expand: ["default_price"],
+      });
       const price = product.default_price;
       if (!product.active || !price || typeof price === "string" || !price.active) {
         throw new CheckoutProblem(`${product.name} is not currently available for checkout.`);
@@ -44,18 +67,20 @@ export const checkoutAction = async (formData: FormData): Promise<void> => {
       lineItems.push({ price: checkoutPrice.id, quantity });
     }
 
-    const requestHeaders = await headers();
-    const requestOrigin = requestHeaders.get("origin");
-    const configuredOrigin = process.env.NEXT_PUBLIC_BASE_URL;
-    const baseUrl = (requestOrigin || configuredOrigin || "http://localhost:3000").replace(/\/$/, "");
+    const baseUrl = getCheckoutBaseUrl(requestHeaders);
 
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: "payment",
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout`,
+      client_reference_id: user.id,
       billing_address_collection: "auto",
       allow_promotion_codes: true,
+      metadata: {
+        user_id: user.id,
+        source: "st_thangka_store",
+      },
     });
 
     if (!session.url) throw new CheckoutProblem("Stripe did not return a checkout URL.");
@@ -71,6 +96,37 @@ export const checkoutAction = async (formData: FormData): Promise<void> => {
 };
 
 class CheckoutProblem extends Error {}
+
+function assertSameOrigin(requestHeaders: Headers) {
+  const origin = requestHeaders.get("origin");
+  const host = requestHeaders.get("host");
+  if (!origin || !host) return;
+
+  try {
+    if (new URL(origin).host !== host) {
+      throw new CheckoutProblem("Checkout request origin could not be verified.");
+    }
+  } catch {
+    throw new CheckoutProblem("Checkout request origin could not be verified.");
+  }
+}
+
+function getCheckoutBaseUrl(requestHeaders: Headers) {
+  const configuredOrigin = process.env.NEXT_PUBLIC_BASE_URL;
+  const fallbackHost = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host");
+  const fallbackProtocol = requestHeaders.get("x-forwarded-proto") || "https";
+  const candidate = configuredOrigin || (fallbackHost ? `${fallbackProtocol}://${fallbackHost}` : "http://localhost:3000");
+
+  try {
+    const url = new URL(candidate);
+    if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
+      throw new Error("Production checkout must use HTTPS.");
+    }
+    return url.origin;
+  } catch {
+    throw new CheckoutProblem("Checkout URL is not configured correctly.");
+  }
+}
 
 function isPaymentPrice(price: Stripe.Price) {
   return price.active && price.type === "one_time" && !price.recurring;

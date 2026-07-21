@@ -19,9 +19,22 @@ export function ContactForm() {
     const email = String(formData.get("email") ?? "").trim();
     const subject = String(formData.get("subject") ?? "").trim();
     const message = String(formData.get("message") ?? "").trim();
+    const website = String(formData.get("website") ?? "").trim();
     const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
     const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+    if (website) {
+      form.reset();
+      setStatus("sent");
+      return;
+    }
+
+    if (!isValidContactInput({ name, email, subject, message })) {
+      setErrorMessage("Please enter a valid name, email, subject, and message.");
+      setStatus("error");
+      return;
+    }
 
     if (!serviceId || !templateId || !publicKey) {
       setErrorMessage(
@@ -115,12 +128,39 @@ export function ContactForm() {
         {status === "sending" ? "Sending..." : "Send message"}
         <ArrowRight className="h-4 w-4" />
       </button>
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="website">Website</label>
+        <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
       {status === "error" && (
         <p role="alert" className="text-sm text-[#a7442d]">
           {errorMessage}
         </p>
       )}
     </form>
+  );
+}
+
+function isValidContactInput({
+  name,
+  email,
+  subject,
+  message,
+}: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  return (
+    name.length >= 2 &&
+    name.length <= 120 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    email.length <= 180 &&
+    subject.length >= 2 &&
+    subject.length <= 120 &&
+    message.length >= 10 &&
+    message.length <= 3000
   );
 }
 

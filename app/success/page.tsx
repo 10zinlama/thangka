@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Check, CircleAlert, PackageCheck } from "lucide-react";
 import { getStripe } from "@/lib/stripe";
 import { ClearCart } from "@/components/clear-cart";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function SuccessPage({
   searchParams,
@@ -14,9 +16,16 @@ export default async function SuccessPage({
     return <StatusPanel valid={false} />;
   }
 
+  const user = await currentUser();
+  if (!user) {
+    redirect("/sign-in");
+  }
+
   try {
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== "paid") return <StatusPanel valid={false} />;
+    if (session.client_reference_id !== user.id || session.payment_status !== "paid") {
+      return <StatusPanel valid={false} />;
+    }
 
     const amount = session.amount_total
       ? new Intl.NumberFormat("en-US", {

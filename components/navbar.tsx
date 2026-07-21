@@ -21,10 +21,7 @@ export const Navbar = () => {
   const pathname = usePathname();
   const { user, isSignedIn } = useUser();
   const cartCount = useCartStore((state) => state.items.reduce((sum, item) => sum + item.quantity, 0));
-  const email = user?.primaryEmailAddress?.emailAddress.toLowerCase();
-  const admins = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
-  const emailUsername = email?.split("@")[0];
-  const isAdmin = serverAdmin || user?.publicMetadata.role === "admin" || Boolean(email && (admins.includes(email) || Boolean(emailUsername && admins.includes(emailUsername))));
+  const isAdmin = serverAdmin || user?.publicMetadata.role === "admin";
 
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
