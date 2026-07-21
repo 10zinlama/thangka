@@ -2,24 +2,32 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Search } from "lucide-react";
+import {
+  filterTransactions,
+  getAdminTransactions,
+  type AdminTransactionStatus,
+} from "@/lib/orders";
 
-const transactions = [
-  ["#323537", "Abram Schleifer", "abram@example.com", "$43,999", "25 Apr, 2027", "Completed"],
-  ["#323544", "Ava Smith", "ava.smith@example.com", "$1,200", "01 Dec, 2027", "Pending"],
-  ["#323538", "Carla George", "carla65@example.com", "$919", "11 May, 2027", "Completed"],
-  ["#323543", "Ekstrom Bothman", "ekstrom@example.com", "$679", "15 Nov, 2027", "Completed"],
-  ["#323552", "Ella Davis", "ella.davis@example.com", "$210", "01 Mar, 2028", "Failed"],
-  ["#323539", "Emery Culhane", "emery09@example.com", "$839", "29 Jun, 2027", "Completed"],
-  ["#323547", "Ethan Patel", "ethan.patel@example.com", "$2,100", "05 Jan, 2028", "Pending"],
-];
+export const dynamic = "force-dynamic";
 
-export default function TransactionsPage() {
+export default async function TransactionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const query = getParam(params.q);
+  const status = getParam(params.status) || "all";
+  const range = getParam(params.range) || "all";
+  const transactions = await getAdminTransactions();
+  const visibleTransactions = filterTransactions(transactions, { query, status, range });
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
         <p className="text-sm text-slate-500">
-          Review customer payments and order status.
+          Review Stripe checkout payments and order status.
         </p>
       </div>
 
@@ -28,76 +36,116 @@ export default function TransactionsPage() {
           <div>
             <CardTitle>Transactions</CardTitle>
             <p className="text-sm text-slate-500">
-              Your most recent transactions list
+              Showing {visibleTransactions.length} of {transactions.length} Stripe sessions
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline">
+          <Button asChild variant="outline">
+            <Link href="/admin/transactions/export">
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <form className="grid gap-3 md:grid-cols-[1fr_170px_150px_auto]" action="/admin/transactions">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                name="q"
+                defaultValue={query}
+                placeholder="Search ID, customer, or email"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </label>
+            <select
+              name="status"
+              defaultValue={status}
+              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+            >
+              <option value="all">All statuses</option>
+              <option value="completed">Completed</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+              <option value="expired">Expired</option>
+            </select>
+            <select
+              name="range"
+              defaultValue={range}
+              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+            >
+              <option value="all">All time</option>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
+            <Button type="submit" variant="outline">
               <Search className="h-4 w-4" />
               Search
             </Button>
-            <Button variant="outline">Last 7 Days</Button>
-            <Button variant="outline">
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
-            <thead>
-              <tr className="border-b text-left text-slate-500">
-                <th className="py-3">Order ID</th>
-                <th>Customer</th>
-                <th>Email</th>
-                <th>Total Amount</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction[0]} className="border-b last:border-0">
-                  <td className="py-4 font-medium">{transaction[0]}</td>
-                  <td>{transaction[1]}</td>
-                  <td className="text-slate-500">{transaction[2]}</td>
-                  <td>{transaction[3]}</td>
-                  <td>{transaction[4]}</td>
-                  <td>
-                    <StatusBadge status={transaction[5]} />
-                  </td>
-                  <td>
-                    <Button asChild variant="outline" size="sm">
-                      <Link
-                        href={`/admin/transactions/${transaction[0].replace("#", "")}`}
-                      >
-                        View
-                      </Link>
-                    </Button>
-                  </td>
+          </form>
+
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] text-sm">
+              <thead>
+                <tr className="border-b text-left text-slate-500">
+                  <th className="py-3">Order ID</th>
+                  <th>Customer</th>
+                  <th>Email</th>
+                  <th>Total Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th className="text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {visibleTransactions.map((transaction) => (
+                  <tr key={transaction.id} className="border-b last:border-0">
+                    <td className="py-4 font-medium">
+                      <div>{transaction.displayId}</div>
+                      <div className="max-w-40 truncate text-xs font-normal text-slate-500">
+                        {transaction.id}
+                      </div>
+                    </td>
+                    <td>{transaction.customerName}</td>
+                    <td className="text-slate-500">{transaction.email}</td>
+                    <td>{transaction.formattedAmount}</td>
+                    <td>{transaction.dateLabel}</td>
+                    <td>
+                      <StatusBadge status={transaction.status} />
+                    </td>
+                    <td className="text-right">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/admin/transactions/${transaction.id}`}>View</Link>
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {visibleTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-14 text-center text-slate-500">
+                      No Stripe transactions match these filters yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function getParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function StatusBadge({ status }: { status: AdminTransactionStatus }) {
   const color =
     status === "Completed"
       ? "bg-emerald-50 text-emerald-700"
       : status === "Pending"
-      ? "bg-amber-50 text-amber-700"
-      : "bg-red-50 text-red-700";
+        ? "bg-amber-50 text-amber-700"
+        : "bg-red-50 text-red-700";
 
-  return (
-    <span className={`rounded-full px-2 py-1 text-xs font-medium ${color}`}>
-      {status}
-    </span>
-  );
+  return <span className={`rounded-full px-2 py-1 text-xs font-medium ${color}`}>{status}</span>;
 }
-

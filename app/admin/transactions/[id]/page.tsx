@@ -1,34 +1,11 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, ReceiptText, ShoppingCart } from "lucide-react";
+import { getAdminTransaction, type AdminTransactionStatus } from "@/lib/orders";
 
-const orderItems = [
-  ["Macbook pro 13", "1", "$1200", "0%", "$1200"],
-  ["Apple Watch Ultra", "1", "$300", "50%", "$150"],
-  ["iPhone 15 Pro Max", "2", "$800", "0%", "$1600"],
-  ["iPad Pro 3rd Gen", "1", "$900", "0%", "$900"],
-];
-
-const history = [
-  {
-    title: "Checkout Started",
-    detail: "via storefront",
-    time: "12:54",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Purchased",
-    detail: "for US$4,235 via Stripe",
-    time: "12:58",
-    icon: ReceiptText,
-  },
-  {
-    title: "Receipt Email Sent",
-    detail: "Receipt #1734535",
-    time: "12:58",
-    icon: Mail,
-  },
-];
+export const dynamic = "force-dynamic";
 
 export default async function TransactionDetailPage({
   params,
@@ -36,28 +13,69 @@ export default async function TransactionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const transaction = await getAdminTransaction(id);
+
+  if (!transaction) {
+    notFound();
+  }
+
+  const history = [
+    {
+      title: "Checkout session created",
+      detail: transaction.dateLabel,
+      icon: ShoppingCart,
+    },
+    {
+      title: transaction.status === "Completed" ? "Payment completed" : "Payment status updated",
+      detail: `${transaction.formattedAmount} through Stripe`,
+      icon: ReceiptText,
+    },
+    {
+      title: transaction.email === "No email" ? "Customer email unavailable" : "Customer email captured",
+      detail: transaction.email,
+      icon: Mail,
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Single Transaction</h1>
-        <p className="text-sm text-slate-500">
-          Transaction detail, customer data, and order history.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Transaction Detail</h1>
+          <p className="text-sm text-slate-500">
+            Stripe session, customer data, and purchased items.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href="/admin/transactions">Back to transactions</Link>
+        </Button>
       </div>
 
       <Card>
         <CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-4">
-            <h2 className="text-xl font-semibold">Order ID: #{id}</h2>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
-              Completed
-            </span>
-            <span className="text-sm text-slate-500">Due date: 25 August 2025</span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-xl font-semibold">Order {transaction.displayId}</h2>
+              <StatusBadge status={transaction.status} />
+              <span className="text-sm text-slate-500">{transaction.dateLabel}</span>
+            </div>
+            <p className="mt-2 truncate text-xs text-slate-500">{transaction.id}</p>
           </div>
           <div className="flex gap-3">
-            <Button>View Receipt</Button>
-            <Button variant="outline">Refund</Button>
+            {transaction.receiptUrl ? (
+              <Button asChild>
+                <Link href={transaction.receiptUrl} target="_blank" rel="noreferrer">
+                  View Receipt
+                </Link>
+              </Button>
+            ) : (
+              <Button disabled>Receipt unavailable</Button>
+            )}
+            <Button asChild variant="outline">
+              <Link href="https://dashboard.stripe.com/payments" target="_blank" rel="noreferrer">
+                Open Stripe
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -69,35 +87,39 @@ export default async function TransactionDetailPage({
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[800px] text-sm">
+              <table className="w-full min-w-[760px] text-sm">
                 <thead>
                   <tr className="border-b bg-slate-50 text-left text-slate-500">
                     <th className="px-4 py-3">S. No.</th>
-                    <th>Products</th>
+                    <th>Product</th>
                     <th>Quantity</th>
                     <th>Unit Cost</th>
-                    <th>Discount</th>
                     <th>Total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orderItems.map((item, index) => (
-                    <tr key={item[0]} className="border-b last:border-0">
+                  {transaction.items.map((item, index) => (
+                    <tr key={item.id} className="border-b last:border-0">
                       <td className="px-4 py-4">{index + 1}</td>
-                      <td className="font-medium">{item[0]}</td>
-                      <td>{item[1]}</td>
-                      <td>{item[2]}</td>
-                      <td>{item[3]}</td>
-                      <td>{item[4]}</td>
+                      <td className="font-medium">{item.name}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.unitAmount}</td>
+                      <td>{item.total}</td>
                     </tr>
                   ))}
+                  {transaction.items.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
+                        Stripe did not return line items for this session.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
             <div className="ml-auto w-full max-w-xs space-y-2 text-sm">
-              <TotalLine label="Sub Total" value="$3,850" />
-              <TotalLine label="Vat (10%)" value="$385" />
-              <TotalLine label="Total" value="$4,235" strong />
+              <TotalLine label="Sub Total" value={transaction.subtotal} />
+              <TotalLine label="Total" value={transaction.total} strong />
             </div>
           </CardContent>
         </Card>
@@ -108,14 +130,11 @@ export default async function TransactionDetailPage({
               <CardTitle>Customer Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
-              <InfoLine label="Name" value="Mushafrof Chowdhury" />
-              <InfoLine label="Email" value="name@example.com" />
-              <InfoLine label="Phone" value="+123 456 7890" />
-              <InfoLine label="Country" value="United States" />
-              <InfoLine
-                label="Address"
-                value="62 Miles Drive St, Newark, NJ 07103, California."
-              />
+              <InfoLine label="Name" value={transaction.customerName} />
+              <InfoLine label="Email" value={transaction.email} />
+              <InfoLine label="Phone" value={transaction.customerPhone} />
+              <InfoLine label="Country" value={transaction.customerCountry} />
+              <InfoLine label="Address" value={transaction.customerAddress} />
             </CardContent>
           </Card>
 
@@ -132,31 +151,30 @@ export default async function TransactionDetailPage({
                     <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-white">
                       <Icon className="h-4 w-4" />
                     </div>
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold">{event.title}</p>
-                      <p className="text-sm text-slate-500">{event.detail}</p>
+                      <p className="truncate text-sm text-slate-500">{event.detail}</p>
                     </div>
-                    <span className="text-xs text-slate-500">{event.time}</span>
                   </div>
                 );
               })}
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm">
-                  Resend
-                </Button>
-                <Button variant="outline" size="sm">
-                  Forward
-                </Button>
-                <Button variant="outline" size="sm">
-                  Preview
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
   );
+}
+
+function StatusBadge({ status }: { status: AdminTransactionStatus }) {
+  const color =
+    status === "Completed"
+      ? "bg-emerald-50 text-emerald-700"
+      : status === "Pending"
+        ? "bg-amber-50 text-amber-700"
+        : "bg-red-50 text-red-700";
+
+  return <span className={`rounded-full px-3 py-1 text-sm font-medium ${color}`}>{status}</span>;
 }
 
 function InfoLine({ label, value }: { label: string; value: string }) {
@@ -184,4 +202,3 @@ function TotalLine({
     </div>
   );
 }
-
